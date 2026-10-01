@@ -1,57 +1,31 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>MoonName — Leave a little of you</title>
-    <link rel="stylesheet" th:href="@{/style.css}">
+    <title>MoonName</title>
+    <link rel="stylesheet" href="/css/main.css">
 </head>
 <body>
-<header>
-    <a class="brand" th:href="@{/}">MOONNAME.</a>
+<main>
+    <h1>MoonName</h1>
+    <p>envoie ta pierre to the moon</p>
 
-    <nav aria-label="Main navigation">
-        <a th:href="@{/missions}">Missions</a>
-        <a th:href="@{/edifice}">Moon wall</a>
+    <h2>Missions</h2>
+    <ul>
+        <li th:each="mission : ${missions}">
+            <b th:text="${mission.nom}"></b> — <span th:text="${mission.dateDepart}"></span>
+        </li>
+    </ul>
 
-        <a sec:authorize="isAnonymous()"
-           th:href="@{/login}">Sign in</a>
+    <h2>Pierres</h2>
+    <ul>
+        <li th:each="pierre : ${pierres}">
+            <b th:text="${pierre.inscription}"></b> — <span th:text="${pierre.statut}"></span>
+        </li>
+    </ul>
 
-        <a sec:authorize="hasAuthority('CLIENT')"
-           th:href="@{/pierres}">My stones</a>
-
-        <a sec:authorize="hasAuthority('ADMIN')"
-           th:href="@{/fusees}">Rockets</a>
-
-        <a sec:authorize="hasAuthority('ASTRONAUTE')"
-           th:href="@{/astronaute}">My missions</a>
-    </nav>
-</header>
-
-<main class="hero">
-    <p class="eyebrow">Earth → Moon</p>
-
-    <h1>A little<br>of <em>you.</em></h1>
-
-    <p>Your name. A stone. Somewhere on the Moon.</p>
-
-    <a class="button"
-       sec:authorize="isAnonymous()"
-       th:href="@{/inscription}">Leave your name ↗</a>
-
-    <a class="button"
-       sec:authorize="hasAuthority('CLIENT')"
-       th:href="@{/pierres/ajouter}">Create your stone ↗</a>
-
-    <a class="button"
-       sec:authorize="hasAnyAuthority('ADMIN', 'ASTRONAUTE')"
-       th:href="@{/missions}">Explore missions ↗</a>
+    <p><a href="/swagger-ui/index.html">Ouvrir Swagger</a></p>
 </main>
-
-<footer>
-    <p>A fictional lunar project.</p>
-    <a th:href="@{/edifice}">Explore the Moon wall ↗</a>
-</footer>
 </body>
 </html>
