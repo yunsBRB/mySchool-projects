@@ -1,6 +1,6 @@
 package be.technofutur.moonname.api.configss;
 
-import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.*;
 import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.security.*;
