@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -7,25 +7,251 @@
     <link rel="stylesheet" href="/css/main.css">
 </head>
 <body>
+<p><a href="/swagger-ui/index.html">swagger</a></p>
 <main>
     <h1>MoonName</h1>
-    <p>envoie ta pierre to the moon</p>
+    <p>Customise un message sur une pierre lunaire et imagine son voyage vers la Lune</p>
 
-    <h2>Missions</h2>
-    <ul>
-        <li th:each="mission : ${missions}">
-            <b th:text="${mission.nom}"></b> — <span th:text="${mission.dateDepart}"></span>
-        </li>
-    </ul>
 
-    <h2>Pierres</h2>
-    <ul>
-        <li th:each="pierre : ${pierres}">
-            <b th:text="${pierre.inscription}"></b> — <span th:text="${pierre.statut}"></span>
-        </li>
-    </ul>
+    <section id="compte">
+        <h2>Votre compte</h2>
 
-    <p><a href="/swagger-ui/index.html">Ouvrir Swagger</a></p>
+
+        <form id="connexion">
+            <label for="nom">Nom d’utilisateur</label>
+            <input id="nom" required maxlength="50" autocomplete="username">
+
+            <label for="mdp">Mot de passe</label>
+            <input id="mdp" type="password" required
+                   autocomplete="current-password">
+
+            <p class="hint">Nouveau compte : 8 caractères minimum.</p>
+
+            <button name="action" value="login">Se connecter</button>
+            <button name="action" value="register">Créer un compte</button>
+        </form>
+    </section>
+
+    <div id="application" hidden>
+        <p>Connecté : <strong id="utilisateur"></strong></p>
+        <button id="deconnexion" type="button">Se déconnecter</button>
+
+        <section>
+            <h2>Customiser ma pierre</h2>
+            <p>Choisissez votre message, votre fusée et votre drapeau.</p>
+
+            <form id="creation">
+                <label for="message">Message (40 caractères maximum)</label>
+                <textarea id="message" required maxlength="40"></textarea>
+
+                <label for="fusee">Fusées disponible pour le voyage </label>
+                <select id="fusee" required></select>
+
+                <label for="pays">Drapeau</label>
+                <select id="pays">
+                    <option>Belgique</option>
+                    <option>France</option>
+                    <option>Sans drapeau</option>
+                </select>
+
+                <button id="envoyer">Confirmer l’achat et l’envoi </button>
+            </form>
+        </section>
+
+        <section>
+            <h2>Mes pierres</h2>
+            <p>Retrouvez vos messages customiser</p>
+            <ul id="pierres"></ul>
+
+            <div id="panier" hidden>
+                <p>Vos pierres attende votre confirmation :</p>
+                <ul id="contenu-panier"></ul>
+                <button id="confirmer" type="button">
+                    Confirmer ce panier
+                </button>
+            </div>
+        </section>
+    </div>
+
+    <p id="info" role="status" aria-live="polite"></p>
 </main>
+
+<script>
+    const $ = id => document.getElementById(id);
+    let utilisateur = null;
+    let pierreEnCours = null;
+
+    function informer(texte) {
+        $('info').textContent = texte;
+    }
+
+    async function api(url, methode = 'GET', donnees) {
+        const headers = { 'Content-Type': 'application/json' };
+        if (utilisateur) {
+            headers.Authorization = 'Bearer ' + utilisateur.accessToken;
+        }
+
+        const reponse = await fetch(url, {
+            method: methode,
+            headers,
+            body: donnees ? JSON.stringify(donnees) : undefined
+        });
+
+        const resultat = await reponse.json().catch(() => ({}));
+
+        if (!reponse.ok) {
+            throw Error(
+                reponse.status === 401 || reponse.status === 403
+                    ? 'Reconnectez-vous pour continuer'
+                    : resultat.erreur || 'Erreur veuillez reessayez'
+            );
+        }
+        return resultat;
+    }
+
+    function afficherListe(id, elements, texte) {
+        $(id).replaceChildren();
+        elements.forEach(element => {
+            const ligne = document.createElement('li');
+            ligne.textContent = texte(element);
+            $(id).append(ligne);
+        });
+    }
+
+    async function chargerPierres() {
+        const toutes = await api('/api/pierres');
+        const miennes = toutes.filter(p => p.client === utilisateur.username);
+        const etats = {
+            EN_ATTENTE: 'Pierre créé',
+            PANIER: 'À confirmer',
+            ACHETEE: 'Achat  confirmé',
+            DEPOSEE: 'Depot confirmé'
+        };
+
+        afficherListe('pierres', miennes, p =>
+            p.inscription + ' — ' + p.mission + ' — '
+            + (etats[p.statut] || p.statut)
+        );
+
+        if (!miennes.length) {
+            $('pierres').textContent = 'Vous n’avez pas encore créé votre pierre';
+        }
+
+        const panier = await api('/api/panier');
+        $('panier').hidden = panier.pierres.length === 0;
+        afficherListe('contenu-panier', panier.pierres, p => p.inscription);
+    }
+
+    $('connexion').onsubmit = async evenement => {
+        evenement.preventDefault();
+        const action = evenement.submitter.value;
+        const boutons = document.querySelectorAll('#connexion button');
+        boutons.forEach(b => b.disabled = true);
+
+        try {
+            utilisateur = await api('/api/auth/' + action, 'POST', {
+                username: $('nom').value.trim(),
+                password: $('mdp').value
+            });
+
+            $('mdp').value = '';
+            $('utilisateur').textContent = utilisateur.username;
+            $('compte').hidden = true;
+            $('application').hidden = false;
+            $('fusee').replaceChildren();
+
+            const missions = await api('/api/missions');
+            missions.forEach(m =>
+                $('fusee').add(new Option(m.nom, m.id))
+            );
+
+            $('envoyer').disabled = missions.length === 0;
+            await chargerPierres();
+            informer(missions.length
+                ? 'Vous pouvez maintenant créer votre pierre'
+                : 'Aucune fusée dispo pour le moment');
+        } catch (erreur) {
+            informer(erreur.message);
+        } finally {
+            boutons.forEach(b => b.disabled = false);
+        }
+    };
+
+    $('creation').onsubmit = async evenement => {
+        evenement.preventDefault();
+
+        if (!$('message').value.trim()) {
+            informer('Ecrivez un message customiser avant de continuer');
+            return;
+        }
+
+        $('envoyer').disabled = true;
+        $('confirmer').disabled = true;
+
+        try {
+            const panier = await api('/api/panier');
+
+            if (panier.pierres.some(p => p.id !== pierreEnCours?.id)) {
+                throw Error('Confirmez d’abord votre panier ci dessous');
+            }
+
+            if (!pierreEnCours) {
+                pierreEnCours = await api('/api/pierres', 'POST', {
+                    inscription: $('message').value.trim(),
+                    pays: $('pays').value,
+                    missionId: Number($('fusee').value)
+                });
+
+                document.querySelectorAll('#creation input, #creation textarea, #creation select')
+                    .forEach(champ => champ.disabled = true);
+            }
+
+            if (!panier.pierres.some(p => p.id === pierreEnCours.id)) {
+                await api('/api/panier/' + pierreEnCours.id, 'POST');
+            }
+
+            await api('/api/commandes', 'POST');
+            terminerCreation();
+            informer('Votre pierre est enregistrée');
+        } catch (erreur) {
+            informer(erreur.message);
+        } finally {
+            $('envoyer').disabled = false;
+            $('confirmer').disabled = false;
+        }
+
+        try {
+            await chargerPierres();
+        } catch (erreur) {
+            informer('Impossible d’actualiser la liste ' + erreur.message);
+        }
+    };
+
+    function terminerCreation() {
+        pierreEnCours = null;
+        $('creation').reset();
+        document.querySelectorAll('#creation input, #creation textarea, #creation select')
+            .forEach(champ => champ.disabled = false);
+    }
+
+    $('confirmer').onclick = async () => {
+        $('confirmer').disabled = true;
+        $('envoyer').disabled = true;
+
+        try {
+            await api('/api/commandes', 'POST');
+            if (pierreEnCours) terminerCreation();
+            informer('Votre panier est confirmé');
+            await chargerPierres();
+        } catch (erreur) {
+            informer(erreur.message);
+        } finally {
+            $('confirmer').disabled = false;
+            $('envoyer').disabled = false;
+        }
+    };
+
+    $('deconnexion').onclick = () => location.reload();
+</script>
 </body>
 </html>

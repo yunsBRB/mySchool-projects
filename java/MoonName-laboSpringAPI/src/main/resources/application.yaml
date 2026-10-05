@@ -2,7 +2,7 @@ spring:
   application:
     name: MoonName
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/moonname}
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/moonname}
     username: ${DB_USER:postgres}
     password: ${DB_PASSWORD:postgres}
   jpa:
