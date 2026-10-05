@@ -1,0 +1,29 @@
+# MoonName
+
+Projet labo Spring
+
+L'idée = créer une inscription pour une pierre lunaire, choisir une mission, passer par un panier puis une commande fictive. Un astronaute va ensuite confirmer le depot
+
+
+## Plan
+
+1. Login clientt
+2. Voir les missions
+3. Créer une pierre
+4. Ajouter la pierre au panier
+5. Valider la commande
+6. Login astronaute
+7. Marquer la pierre comme déposer
+
+
+- base : localhost:5432/moonname
+- user : postgres
+- mot de passe : postgres
+
+Page web : `http://localhost:8080`
+
+Swagger : `http://localhost:8080/swagger-ui/index.html`
+
+
+
+

@@ -1,0 +1,125 @@
+# Démo MoonName
+
+## 1. PostgreSQL avec Docker
+
+Pas de docker-compose dans le projet. Je démarre juste PostgreSQL :
+
+```powershell
+docker run --name moonname-db -e POSTGRES_DB=moonname -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres:16
+```
+
+Pour les démos suivantes :
+
+```powershell
+docker start moonname-db
+```
+
+DansPostgreSQL, je peux montrer les tables créées par Flyway : `user_`, `mission`, `pierre`, `panier`, `commande`.
+
+## 2. Démarrer l'application
+
+IntelliJ : lancer `MoonNameApplication`.
+
+Ou :
+
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+## 3. Montrer le front
+
+Ouvrir `http://localhost:8080`.
+
+Je montre juste que Thymeleaf récupère les missions et les pierres depuis le back.
+
+## 4. Swagger / Postman
+
+Ouvrir `http://localhost:8080/swagger-ui/index.html`.
+
+### Login client
+
+`POST /api/auth/login`
+
+```json
+{
+  "username": "michael",
+  "password": "moonwalk"
+}
+```
+
+Copier `accessToken`, cliquer sur **Authorize** et coller le token.
+
+### Missions
+
+`GET /api/missions`
+
+### Créer une pierre
+
+`POST /api/pierres`
+
+```json
+{
+  "inscription": "Billie Jean",
+  "pays": "Belgique",
+  "missionId": 1
+}
+```
+
+Noter l'id de la pierre.
+
+### Panier
+
+`POST /api/panier/{pierreId}` puis `GET /api/panier`.
+
+### Commande
+
+`POST /api/commandes` puis `GET /api/commandes`.
+
+La pierre passe de `PANIER` à `ACHETEE`.
+
+### Refresh token
+
+`POST /api/auth/refresh`
+
+```json
+{
+  "refreshToken": "COLLER_LE_REFRESH_TOKEN"
+}
+```
+
+Je montre simplement qu'un nouvel access token est renvoyé sans retaper le mot de passe.
+
+### Astronaute
+
+Se reconnecter avec `elvis / vegas`, remplacer le token dans Swagger puis :
+
+`PATCH /api/pierres/{id}/deposer`
+
+La pierre passe à `DEPOSEE`.
+
+## 5. Ce que je dis sur l'architecture
+
+- `api` : routes, DTO, JWT, Swagger.
+- `bll` : règles et services.
+- `dal` : repositories PostgreSQL.
+- `dl` : entités et enums.
+
+C'est le même principe que le projet API du cours, mais réduit aux fonctions utiles à MoonName.
+
+Pour le panier, je reprends l'idée du projet MVC du prof : le controller appelle un service, et le service crée/récupère le panier avant de modifier son contenu. Ici c'est plus simple car une pierre est un objet unique, donc je n'ai pas besoin de `CartLine` ni de quantité.
+
+## Questions probables
+
+**Pourquoi JWT ?** Pour savoir qui appelle l'API sans garder une session serveur.
+
+**Access token vs refresh token ?** L'access token sert aux requêtes. Le refresh token sert seulement à obtenir un nouvel access token.
+
+**Pourquoi Flyway ?** Pour créer et faire évoluer les tables avec des scripts versionnés.
+
+**Pourquoi Service ?** Pour éviter de mettre la logique métier dans les controllers.
+
+**Pourquoi Repository ?** C'est la couche qui parle à PostgreSQL via JPA.
+
+**Pourquoi Thymeleaf si l'API existe ?** Juste pour avoir une petite vue web. La démo principale de l'API reste Swagger/Postman.
+
+**Pourquoi pas Docker Compose ?** Le projet n'en a pas besoin. Je lance seulement PostgreSQL dans un conteneur Docker, comme un service externe.
