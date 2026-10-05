@@ -1,16 +1,19 @@
 package be.technofutur.moonname.api.configss;
 
-import io.swagger.v3.oas.annotations.info.Info;
-import io.swagger.v3.oas.models.*;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.components.Components;
-import io.swagger.v3.oas.models.security.*;
-import org.springframework.context.annotation.*;
+import io.swagger.v3.oas.models.security.SecurityScheme;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class OpenApiConfig {
 
     // Authorize de swagger c pour coller le jwt plus facilement
-    @Bean public OpenAPI moonApi() {
+    @Bean
+    public OpenAPI moonApi() {
         return new OpenAPI()
                 .info(new Info().title("MoonName API").version("1.0"))
                 .components(new Components().addSecuritySchemes("bearerAuth",
