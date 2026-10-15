@@ -1,0 +1,37 @@
+
+.chronometre {
+  text-align: center;
+  margin: 50px auto;
+  color: black;
+}
+
+h1 {
+  font-size: 48px;
+  color: black;
+  margin: 20px;
+}
+
+h2 {
+  color: black;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 5px;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  cursor: pointer;
+}
+
+.start {
+  background: #000000;
+}
+
+.stop {
+  background: #000000;
+}
+
+.reset {
+  background: #b83b3b;
+}

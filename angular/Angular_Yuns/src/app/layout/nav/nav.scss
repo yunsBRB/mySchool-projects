@@ -1,0 +1,20 @@
+:host {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 24px;
+  padding: 16px;
+  background: white;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+a {
+  color: #000000;
+  text-decoration: none;
+  font-weight: 600;
+
+  &:hover {
+    color: #111;
+    text-decoration: underline;
+  }
+}

@@ -1,0 +1,16 @@
+
+.product-card {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin: 30px;
+}
+
+.product-card img {
+  width: 200px;
+}
+
+.product-card h3,
+.product-card p {
+  color: #67a207;
+}
