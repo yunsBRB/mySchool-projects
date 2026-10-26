@@ -1,0 +1,21 @@
+<article class="card" [style.--tint]="types[pokemon().types[0]]?.[1]">
+
+  <a class="card-main" [routerLink]="['/pokemon', pokemon().id]">
+
+    <span class="number">{{ numberLabel(pokemon().id) }}</span>
+
+    <div class="card-art">
+      <img
+        [src]="artwork(pokemon().id)"
+        [alt]="pokemon().name"
+        loading="lazy"
+      >
+    </div>
+
+    <h3>{{ pokemon().name }}</h3>
+
+    <app-type-badges [types]="pokemon().types" />
+
+  </a>
+
+</article>

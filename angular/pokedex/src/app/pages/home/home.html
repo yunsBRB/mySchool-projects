@@ -1,0 +1,31 @@
+<section class="collection">
+
+  <h1>Pokédex</h1>
+
+  <div class="toolbar">
+    <label class="search">
+      <input
+        type="search"
+        placeholder="Rechercher un Pokémon..."
+        aria-label="Rechercher un Pokémon"
+        [value]="search()"
+        (input)="search.set($any($event.target).value)"
+      >
+    </label>
+  </div>
+
+  @if (data.loading()) {
+    <p class="empty">Chargement...</p>
+  } @else if (data.error()) {
+    <p class="empty">{{ data.error() }}</p>
+  } @else {
+    <div class="grid">
+      @for (p of pokemon(); track p.id) {
+        <app-pokemon-card [pokemon]="p" />
+      } @empty {
+        <p class="empty">Aucun Pokémon trouvé.</p>
+      }
+    </div>
+  }
+
+</section>

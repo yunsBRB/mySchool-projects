@@ -1,0 +1,33 @@
+<a class="back-link" routerLink="/home">
+  ← Retour
+</a>
+
+@if (pokemon(); as p) {
+
+  <section class="detail-page">
+    <div class="detail-top">
+
+      <img
+        class="detail-image"
+        [src]="artwork(p.id)"
+        [alt]="p.name"
+      >
+
+      <div>
+        <span class="mono">{{ numberLabel(p.id) }}</span>
+
+        <h1 class="detail-title">{{ p.name }}</h1>
+
+        <app-type-badges [types]="p.types" />
+
+
+      </div>
+
+    </div>
+  </section>
+
+} @else if (data.loading()) {
+  <p class="empty">Chargement...</p>
+} @else {
+  <p class="empty">Pokémon introuvable.</p>
+}

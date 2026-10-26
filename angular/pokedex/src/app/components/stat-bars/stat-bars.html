@@ -1,0 +1,3 @@
+@for (value of stats(); track $index) {
+  <div class="stat"><span>{{ labels[$index] }}</span><b>{{ value }}</b><span class="bar"><i [style.width.%]="value / 255 * 100"></i></span></div>
+}
