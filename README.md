@@ -1,7 +1,7 @@
 # My School Projects
 
 Projets et exercices de formation, regroupés par technologie.
-
+ 
 ## Angular & TypeScript
 
 | Projet | Contenu |
