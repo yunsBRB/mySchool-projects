@@ -1,8 +1,9 @@
 import { Component } from '@angular/core';
 import { ProductDto } from '../../models/product-dto';
+import { Confirm } from '../../confirm/confirm';
 
 @Component({
-  imports: [],
+  imports: [Confirm],
   selector: 'app-product-index',
   styleUrl: './product-index.scss',
   templateUrl: './product-index.html',
